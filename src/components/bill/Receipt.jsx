@@ -50,12 +50,17 @@ export default function Receipt({ billName, items, allParticipants, onBack }) {
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setIsImageReady(false); // ⭐️ 2. ล็อคปุ่ม Export ทันทีที่เริ่มอัปโหลด
+      setIsImageReady(false);
       const reader = new FileReader();
+      
       reader.onloadend = () => {
         setCustomQrImage(reader.result);
-        // ยังไม่ปลดล็อคตรงนี้นะครับ ให้แท็ก img ไปปลดล็อคเองตอนโหลดเสร็จ
+        
+        setTimeout(() => {
+          setIsImageReady(true);
+        }, 1000);
       };
+      
       reader.readAsDataURL(file);
     }
   };
@@ -174,7 +179,6 @@ export default function Receipt({ billName, items, allParticipants, onBack }) {
                     src={customQrImage}
                     alt="Custom QR Code"
                     className="w-full h-full object-contain bg-white rounded"
-                    onLoad={() => setIsImageReady(true)}
                   />
                   <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                     <span className="material-symbols-outlined text-white">edit</span>
