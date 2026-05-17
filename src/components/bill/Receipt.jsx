@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { toPng } from "html-to-image";
 
 export default function Receipt({ billName, items, allParticipants, onBack }) {
@@ -6,7 +6,17 @@ export default function Receipt({ billName, items, allParticipants, onBack }) {
   const fileInputRef = useRef(null); // Ref สำหรับซ่อนปุ่มอัปโหลดไฟล์
 
   // State สำหรับเก็บรูปภาพ QR Code ที่ผู้ใช้อัปโหลด
-  const [customQrImage, setCustomQrImage] = useState(null);
+  const [customQrImage, setCustomQrImage] = useState(() => {
+    return localStorage.getItem("splitHarmony_qrImage") || null;
+  });
+
+  useEffect(() => {
+    if (customQrImage) {
+      localStorage.setItem("splitHarmony_qrImage", customQrImage);
+    } else {
+      localStorage.removeItem("splitHarmony_qrImage"); // ลบออกถ้าไม่มีรูป
+    }
+  }, [customQrImage]);
 
   const currentDate = new Date().toLocaleDateString('en-US', {
     month: 'short', day: 'numeric', year: 'numeric'
@@ -103,16 +113,6 @@ export default function Receipt({ billName, items, allParticipants, onBack }) {
             <button onClick={onBack} className="bg-surface-variant text-on-surface-variant px-md py-sm rounded font-mono-label text-mono-label hover:bg-surface-container-highest transition-colors">
               BACK
             </button>
-            {/* <button 
-              onClick={handleSaveImage}
-              className="bg-primary text-on-primary-fixed px-md py-sm rounded font-mono-label text-mono-label hover:bg-primary-fixed-dim transition-colors flex items-center gap-xs shadow-[0_0_15px_rgba(173,198,255,0.2)]"
-            >
-              <span className="material-symbols-outlined text-[16px]">download</span>
-              SAVE IMG
-            </button> */}
-            {/* <button onClick={handleExportData} className="bg-tertiary text-on-tertiary px-md py-sm rounded font-mono-label hover:opacity-80 transition-colors flex items-center gap-xs">
-                <span className="material-symbols-outlined text-[16px]">data_object</span> DATA
-            </button> */}
           </div>
         </div>
 

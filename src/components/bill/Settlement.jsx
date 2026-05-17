@@ -1,89 +1,33 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 
 export default function Settlement() {
-  const [billData, setBillData] = useState(null);
-  const fileInputRef = useRef(null);
+  const [billData, setBillData] = useState(() => {
+    const savedData = localStorage.getItem("historyData");
+    if (savedData) {
+      try {
+        return JSON.parse(savedData);
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
+  });
 
-  // 🐛 ฟังก์ชัน handleImport ที่แก้ไขบัคโครงสร้างข้อมูลแล้ว
-  // const handleImport = (e) => {
-  //   const file = e.target.files[0];
-  //   if (file) {
-  //     const reader = new FileReader();
-  //     reader.onload = (event) => {
-  //       try {
-  //         const data = JSON.parse(event.target.result);
-          
-  //         // ตรวจสอบว่าเป็นไฟล์แบบ Settled_Only หรือไม่ ถ้าใช่ให้แปลงข้อมูลให้ตรงกับที่ Component ต้องการ render
-  //         if (data.exportType === "Settled_Only") {
-  //           const normalizedData = {
-  //             billName: data.billName,
-  //             id: data.id,
-  //             date: data.originalDate || "N/A",
-  //             totalAmount: data.totalSettledAmount || 0,
-  //             // แมปข้อมูลผู้ชำระกลับเข้า array หลัก และระบุสถานะเป็นจ่ายแล้วให้ทั้งหมด
-  //             participants: (data.settledParticipants || []).map(p => ({
-  //               ...p,
-  //               isSettled: true 
-  //             }))
-  //           };
-  //           setBillData(normalizedData);
-  //         } else {
-  //           // หากเป็นไฟล์บิลเต็มรูปแบบที่มาจากหน้า Receipt (ส่งออกครั้งแรก)
-  //           setBillData(data);
-  //         }
-  //       } catch (error) {
-  //         console.error("JSON Parsing Error:", error);
-  //         alert("ไฟล์ JSON ไม่ถูกต้อง หรือโครงสร้างเสียหาย");
-  //       }
-  //     };
-  //     reader.readAsText(file);
-  //   }
-  // };
+  useEffect(() => {
+    if (billData) {
+      localStorage.setItem("historyData", JSON.stringify(billData));
+    } else {
+      localStorage.removeItem("historyData");
+    }
+  }, [billData]);
+
+  const fileInputRef = useRef(null);
 
   const toggleStatus = (index) => {
     const newData = { ...billData };
     newData.participants[index].isSettled = !newData.participants[index].isSettled;
     setBillData(newData);
   };
-
-  // const handleExportSettled = () => {
-  //   if (!billData) return;
-
-  //   const settledParticipants = billData.participants.filter(p => p.isSettled);
-
-  //   if (settledParticipants.length === 0) {
-  //     alert("ยังไม่มีรายการที่ชำระเงินแล้วให้ Export ครับ");
-  //     return;
-  //   }
-
-  //   const exportPayload = {
-  //     billName: billData.billName,
-  //     id: billData.id,
-  //     originalDate: billData.date,
-  //     exportType: "Settled_Only",
-  //     settledParticipants: settledParticipants,
-  //     totalSettledAmount: settledParticipants.reduce((sum, p) => sum + p.amount, 0)
-  //   };
-
-  //   const now = new Date();
-  //   const timestamp = now.getFullYear().toString() + 
-  //                    (now.getMonth() + 1).toString().padStart(2, '0') + 
-  //                    now.getDate().toString().padStart(2, '0') + "_" + 
-  //                    now.getHours().toString().padStart(2, '0') + 
-  //                    now.getMinutes().toString().padStart(2, '0') + 
-  //                    now.getSeconds().toString().padStart(2, '0');
-
-  //   const safeBillName = billData.billName.replace(/\s+/g, '_');
-  //   const fileName = `${safeBillName}_Settled_${timestamp}.json`;
-
-  //   const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportPayload, null, 2));
-  //   const downloadAnchorNode = document.createElement('a');
-  //   downloadAnchorNode.setAttribute("href", dataStr);
-  //   downloadAnchorNode.setAttribute("download", fileName);
-  //   document.body.appendChild(downloadAnchorNode);
-  //   downloadAnchorNode.click();
-  //   downloadAnchorNode.remove();
-  // };
 
   // 1. แก้ไขฟังก์ชัน Import ให้รองรับข้อมูลแบบเต็ม
   const handleImport = (e) => {

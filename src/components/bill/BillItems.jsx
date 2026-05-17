@@ -1,12 +1,15 @@
 import { useState } from "react";
 import NewItemModal from "./NewItemModal";
+import ConfirmDeleteModal from "./ConfirmDeleteModal";
 
 export default function BillItems({ items, setItems, availableFriends }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null); // เก็บ State ของรายการที่กำลังแก้ไข
+  const [itemToDelete, setItemToDelete] = useState(null);
 
   const handleRemoveItem = (idToRemove) => {
     setItems(items.filter((item) => item.id !== idToRemove));
+    setItemToDelete(null);
   };
 
   const handleOpenModal = (item = null) => {
@@ -105,7 +108,7 @@ export default function BillItems({ items, setItems, availableFriends }) {
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleRemoveItem(item.id);
+                    setItemToDelete(item.id);
                   }}
                   className="p-sm rounded hover:bg-error-container text-outline hover:text-error transition-colors"
                 >
@@ -131,6 +134,13 @@ export default function BillItems({ items, setItems, availableFriends }) {
           onSave={handleSaveItem}
           availableFriends={availableFriends}
           initialData={editingItem} // ส่งข้อมูลเข้าไป ถ้ารายการใหม่จะเป็น null
+        />
+      )}
+
+      {itemToDelete !== null && (
+        <ConfirmDeleteModal
+          onClose={() => setItemToDelete(null)}
+          onConfirm={() => handleRemoveItem(itemToDelete)}
         />
       )}
     </section>

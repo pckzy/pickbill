@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Layout from "./components/layout/Layout";
 import AddFriends from "./components/bill/AddFriends";
 import BillItems from "./components/bill/BillItems";
@@ -7,8 +7,37 @@ import Receipt from "./components/bill/Receipt";
 import Settlement from "./components/bill/Settlement";
 
 export default function App() {
-  const [friends, setFriends] = useState([]);
-  const [items, setItems] = useState([]);
+  const [friends, setFriends] = useState(() => {
+    const savedFriends = localStorage.getItem("splitHarmony_friends");
+    if (savedFriends) {
+      try {
+        return JSON.parse(savedFriends);
+      } catch (e) {
+        console.error("Invalid friends data in storage");
+      }
+    }
+    return [];
+  });
+
+  const [items, setItems] = useState(() => {
+    const savedItems = localStorage.getItem("splitHarmony_items");
+    if (savedItems) {
+      try {
+        return JSON.parse(savedItems);
+      } catch (e) {
+        console.error("Invalid items data in storage");
+      }
+    }
+    return [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem("splitHarmony_friends", JSON.stringify(friends));
+  }, [friends]);
+
+  useEffect(() => {
+    localStorage.setItem("splitHarmony_items", JSON.stringify(items));
+  }, [items]);
 
   // State สำหรับควบคุมหน้าต่าง (Routing)
   const [currentView, setCurrentView] = useState("builder"); // 'builder' | 'receipt' | 'settlement'

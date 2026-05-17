@@ -1,8 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function SummaryCalc({ items, allParticipants, onFinalize }) {
   // State สำหรับเก็บชื่อบิล
-  const [billName, setBillName] = useState("");
+  const [billName, setBillName] = useState(() => {
+    return localStorage.getItem("billNames") || "";
+  });
+
+  useEffect(() => {
+    localStorage.setItem("billNames", billName);
+  }, [billName]);
 
   const totalAmount = items.reduce((sum, item) => sum + item.price, 0);
 
@@ -62,8 +68,8 @@ export default function SummaryCalc({ items, allParticipants, onFinalize }) {
         <label className="font-mono-code text-mono-code text-primary block mb-sm uppercase">// BILL_NAME</label>
         <input
           type="text"
-          className="w-full bg-surface-dim border border-outline-variant rounded px-sm py-sm text-body-md text-on-surface focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary font-mono-code transition-all placeholder:text-outline-variant"
-          placeholder="e.g. The Moon"
+          className="form-input w-full !bg-surface-dim border border-outline-variant rounded px-sm py-sm text-body-md text-on-surface focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary font-mono-code transition-all placeholder:text-outline-variant"
+          placeholder="e.g. Friday bills"
           value={billName}
           onChange={(e) => setBillName(e.target.value)}
         />
