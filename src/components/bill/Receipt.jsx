@@ -9,6 +9,7 @@ export default function Receipt({ billName, items, allParticipants, onBack }) {
   const [customQrImage, setCustomQrImage] = useState(() => {
     return localStorage.getItem("splitHarmony_qrImage") || null;
   });
+  const [isImageReady, setIsImageReady] = useState(true);
 
   useEffect(() => {
     if (customQrImage) {
@@ -49,10 +50,11 @@ export default function Receipt({ billName, items, allParticipants, onBack }) {
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // แปลงไฟล์รูปภาพเป็น Base64 (Data URL) เพื่อไม่ให้ติดปัญหาตอน Export
+      setIsImageReady(false); // ⭐️ 2. ล็อคปุ่ม Export ทันทีที่เริ่มอัปโหลด
       const reader = new FileReader();
       reader.onloadend = () => {
         setCustomQrImage(reader.result);
+        // ยังไม่ปลดล็อคตรงนี้นะครับ ให้แท็ก img ไปปลดล็อคเองตอนโหลดเสร็จ
       };
       reader.readAsDataURL(file);
     }
@@ -167,10 +169,13 @@ export default function Receipt({ billName, items, allParticipants, onBack }) {
               className={`w-[140px] h-[140px] bg-[#1a1c20] border-2 border-dashed ${customQrImage ? 'border-transparent' : 'border-outline-variant hover:border-secondary'} p-xs flex items-center justify-center rounded-lg relative overflow-hidden group cursor-pointer transition-all`}
             >
               {customQrImage ? (
-                // แสดงรูปที่อัปโหลด
                 <>
-                  <img src={customQrImage} alt="Custom QR Code" className="w-full h-full object-contain bg-white rounded" />
-                  {/* แสดง Overlay เวลาเอาเมาส์ชี้ เพื่อให้รู้ว่ากดเปลี่ยนได้ */}
+                  <img
+                    src={customQrImage}
+                    alt="Custom QR Code"
+                    className="w-full h-full object-contain bg-white rounded"
+                    onLoad={() => setIsImageReady(true)}
+                  />
                   <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                     <span className="material-symbols-outlined text-white">edit</span>
                   </div>
@@ -193,10 +198,16 @@ export default function Receipt({ billName, items, allParticipants, onBack }) {
         <div className="flex space-x-4">
           <button
             onClick={handleSaveImage}
-            className="bg-primary text-on-primary-fixed px-md py-sm rounded font-mono-label text-mono-label hover:bg-primary-fixed-dim transition-colors flex items-center gap-xs shadow-[0_0_15px_rgba(173,198,255,0.2)]"
+            disabled={!isImageReady}
+            className={`px-md py-sm rounded font-mono-label transition-colors flex items-center gap-xs ${isImageReady
+                ? "bg-primary text-on-primary-fixed hover:bg-primary-fixed-dim"
+                : "bg-surface-variant text-outline cursor-wait opacity-70"
+              }`}
           >
-            <span className="material-symbols-outlined text-[16px]">download</span>
-            SAVE IMG
+            <span className="material-symbols-outlined text-[16px]">
+              {isImageReady ? "image" : "hourglass_empty"}
+            </span>
+            {isImageReady ? "SAVE IMG" : "UPLOADING..."}
           </button>
 
           <button onClick={handleExportData} className="bg-tertiary text-on-tertiary px-md py-sm rounded font-mono-label hover:opacity-80 transition-colors flex items-center gap-xs">
