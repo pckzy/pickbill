@@ -46,43 +46,59 @@ export default function Receipt({ billName, items, allParticipants, onBack }) {
     };
   }, [items, allParticipants]);
 
-  // ฟังก์ชันจัดการเมื่อผู้ใช้เลือกไฟล์รูป
-  // ฟังก์ชันจัดการเมื่อผู้ใช้เลือกไฟล์รูป
+  // ฟังก์ชันจัดการเมื่อผู้ใช้เลือกไฟล์รูป (บีบอัดก่อนเซฟ)
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    setIsImageReady(false); // 1. ล็อคปุ่มทันที
+    setIsImageReady(false);
 
     const reader = new FileReader();
     
-    // เปลี่ยนจาก onloadend มาใช้ onload ซึ่งทำงานเสถียรกว่าบน iOS
     reader.onload = (event) => {
-      const base64Data = event.target.result;
-      
-      // 2. ให้ React อัปเดตรูปลง UI
-      setCustomQrImage(base64Data);
-      
-      // 3. ⭐️ สร้าง Object รูปภาพจำลองขึ้นมา เพื่อเช็คว่า iOS ประมวลผลภาพก้อนนี้เสร็จหรือยัง
       const img = new Image();
       
-      // เมื่อ iOS โหลดรูปเข้า Memory เสร็จ จะเข้ามาทำงานในฟังก์ชันนี้
       img.onload = () => {
-        setIsImageReady(true); // ปลดล็อคปุ่ม
-      };
-      
-      // กันเหนียว: ถ้าภาพมีปัญหา ก็ต้องปลดล็อคปุ่มให้กดอย่างอื่นต่อได้
-      img.onerror = () => {
-        setIsImageReady(true); 
-      };
-      
-      img.src = base64Data;
-    };
-    
-    reader.readAsDataURL(file);
+        // สร้าง Canvas เพื่อย่อขนาดรูปภาพ
+        const canvas = document.createElement('canvas');
+        const MAX_SIZE = 600; // ย่อให้ขนาดไม่เกิน 600px 
+        let width = img.width;
+        let height = img.height;
 
-    // 4. เคลียร์ค่า input เผื่อผู้ใช้อยากเปลี่ยนรูปโดยใช้ "ไฟล์ชื่อเดิม" จะได้ไม่มีปัญหา
-    e.target.value = '';
+        if (width > height) {
+          if (width > MAX_SIZE) {
+            height *= MAX_SIZE / width;
+            width = MAX_SIZE;
+          }
+        } else {
+          if (height > MAX_SIZE) {
+            width *= MAX_SIZE / height;
+            height = MAX_SIZE;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // บีบอัดเป็น JPEG (คุณภาพ 80%)
+        // ทำให้ไฟล์เล็กลงจาก 5MB เหลือแค่ไม่กี่ KB
+        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
+
+        setCustomQrImage(compressedBase64);
+        setIsImageReady(true);
+      };
+
+      img.onerror = () => {
+        setIsImageReady(true); // ปลดล็อคถ้าโหลดรูปไม่ขึ้น
+      };
+
+      img.src = event.target.result;
+    };
+
+    reader.readAsDataURL(file);
+    e.target.value = ''; // เคลียร์ input 
   };
 
   const handleSaveImage = () => {

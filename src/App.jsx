@@ -72,18 +72,18 @@ export default function App() {
     <Layout currentView={currentView} onViewChange={setCurrentView}>
       
       {currentView === "builder" && (
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
           <header className="col-span-full mb-lg flex items-end justify-between">
             <div>
               <span className="font-mono-code text-mono-code text-secondary block mb-xs">// WORKSPACE</span>
               <h1 className="font-headline-lg text-headline-lg text-on-surface">Bill Creation Session</h1>
             </div>
           </header>
-          <div className="col-span-1 md:col-span-8 flex flex-col gap-lg">
+          <div className="col-span-1 lg:col-span-8 flex flex-col gap-lg">
             <AddFriends friends={friends} onAddFriend={handleAddFriend} onRemoveFriend={handleRemoveFriend} />
             <BillItems items={items} setItems={setItems} availableFriends={allParticipants} />
           </div>
-          <div className="col-span-1 md:col-span-4">
+          <div className="col-span-1 lg:col-span-4">
             <SummaryCalc items={items} allParticipants={allParticipants} onFinalize={handleFinalizeBill} />
           </div>
         </div>
