@@ -1,6 +1,6 @@
 export default function Layout({ children, currentView, onViewChange }) {
   return (
-    <div className="bg-background text-on-surface h-screen flex overflow-hidden antialiased grid-bg relative">
+    <div className="bg-background text-on-surface h-[100dvh] flex overflow-hidden antialiased grid-bg relative">
       
       {/* DESKTOP SIDENAV (PC ยังคงเหมือนเดิม) */}
       <nav className="hidden lg:flex flex-col z-40 fixed left-0 top-0 h-full w-64 bg-surface-container-low border-r border-outline-variant">
