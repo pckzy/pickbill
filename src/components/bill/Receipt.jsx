@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from "react";
-import { toPng } from "html-to-image";
+import html2canvas from "html2canvas";
 
 export default function Receipt({ billName, items, allParticipants, onBack }) {
   const receiptRef = useRef(null);
@@ -101,22 +101,30 @@ export default function Receipt({ billName, items, allParticipants, onBack }) {
     e.target.value = ''; // เคลียร์ input 
   };
 
-  const handleSaveImage = () => {
+  const handleSaveImage = async () => {
     if (receiptRef.current === null) return;
 
-    toPng(receiptRef.current, {
-      cacheBust: true,
-      style: { backgroundColor: '#11141a' }
-    })
-      .then((dataUrl) => {
-        const link = document.createElement('a');
-        link.download = `${billName.replace(/\s+/g, '_')}_receipt.png`;
-        link.href = dataUrl;
-        link.click();
-      })
-      .catch((err) => {
-        console.error('Could not export receipt image:', err);
+    try {
+      // ใช้ html2canvas แทน html-to-image
+      const canvas = await html2canvas(receiptRef.current, {
+        backgroundColor: '#11141a', // สีพื้นหลังใบเสร็จ
+        scale: 2,                   // คูณ 2 ให้ภาพคมชัดขึ้น (รองรับจอ Retina)
+        useCORS: true,              // อนุญาตให้โหลดรูปข้ามโดเมนได้ (กันบัคจอดำ)
+        logging: false,             // ปิด console.log ของไลบรารี
       });
+
+      // แปลง Canvas เป็น Base64 รูปภาพ PNG
+      const dataUrl = canvas.toDataURL('image/png');
+      
+      // สร้างปุ่มดาวน์โหลดจำลองแล้วกด
+      const link = document.createElement('a');
+      link.download = `${billName.replace(/\s+/g, '_')}_receipt.png`;
+      link.href = dataUrl;
+      link.click();
+      
+    } catch (err) {
+      console.error('Could not export receipt image:', err);
+    }
   };
 
   const handleExportData = () => {
