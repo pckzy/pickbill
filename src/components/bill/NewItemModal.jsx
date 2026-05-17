@@ -52,8 +52,8 @@ export default function NewItemModal({ onClose, onSave, availableFriends, initia
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-md">
-      <div className="bg-surface-dim border border-outline-variant rounded-lg shadow-2xl w-full max-w-lg flex flex-col max-h-[90vh] overflow-hidden">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-center justify-center p-md">
+      <div className="bg-surface-dim border border-outline-variant rounded-lg shadow-2xl w-full max-w-lg flex flex-col max-h-[80vh] overflow-hidden">
 
         {/* Header */}
         <div className="p-lg border-b border-outline-variant flex justify-between items-center bg-surface-container-low shrink-0">

@@ -47,22 +47,42 @@ export default function Receipt({ billName, items, allParticipants, onBack }) {
   }, [items, allParticipants]);
 
   // ฟังก์ชันจัดการเมื่อผู้ใช้เลือกไฟล์รูป
+  // ฟังก์ชันจัดการเมื่อผู้ใช้เลือกไฟล์รูป
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setIsImageReady(false);
-      const reader = new FileReader();
+    if (!file) return;
+
+    setIsImageReady(false); // 1. ล็อคปุ่มทันที
+
+    const reader = new FileReader();
+    
+    // เปลี่ยนจาก onloadend มาใช้ onload ซึ่งทำงานเสถียรกว่าบน iOS
+    reader.onload = (event) => {
+      const base64Data = event.target.result;
       
-      reader.onloadend = () => {
-        setCustomQrImage(reader.result);
-        
-        setTimeout(() => {
-          setIsImageReady(true);
-        }, 1000);
+      // 2. ให้ React อัปเดตรูปลง UI
+      setCustomQrImage(base64Data);
+      
+      // 3. ⭐️ สร้าง Object รูปภาพจำลองขึ้นมา เพื่อเช็คว่า iOS ประมวลผลภาพก้อนนี้เสร็จหรือยัง
+      const img = new Image();
+      
+      // เมื่อ iOS โหลดรูปเข้า Memory เสร็จ จะเข้ามาทำงานในฟังก์ชันนี้
+      img.onload = () => {
+        setIsImageReady(true); // ปลดล็อคปุ่ม
       };
       
-      reader.readAsDataURL(file);
-    }
+      // กันเหนียว: ถ้าภาพมีปัญหา ก็ต้องปลดล็อคปุ่มให้กดอย่างอื่นต่อได้
+      img.onerror = () => {
+        setIsImageReady(true); 
+      };
+      
+      img.src = base64Data;
+    };
+    
+    reader.readAsDataURL(file);
+
+    // 4. เคลียร์ค่า input เผื่อผู้ใช้อยากเปลี่ยนรูปโดยใช้ "ไฟล์ชื่อเดิม" จะได้ไม่มีปัญหา
+    e.target.value = '';
   };
 
   const handleSaveImage = () => {
