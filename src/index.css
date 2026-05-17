@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .grid-bg {
+    background-image:
+      linear-gradient(to right, rgba(140, 144, 159, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(140, 144, 159, 0.05) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+}
+
+
+@layer base {
+  /* ปิดสำหรับ Firefox และ IE/Edge */
+  * {
+    scrollbar-width: none; 
+    -ms-overflow-style: none; 
+  }
+  
+  /* ปิดสำหรับ Chrome, Safari และ Webkit Browser ทั้งหมด */
+  *::-webkit-scrollbar {
+    display: none; 
+  }
+}
