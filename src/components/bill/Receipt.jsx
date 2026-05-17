@@ -54,10 +54,10 @@ export default function Receipt({ billName, items, allParticipants, onBack }) {
     setIsImageReady(false);
 
     const reader = new FileReader();
-    
+
     reader.onload = (event) => {
       const img = new Image();
-      
+
       img.onload = () => {
         // สร้าง Canvas เพื่อย่อขนาดรูปภาพ
         const canvas = document.createElement('canvas');
@@ -115,13 +115,13 @@ export default function Receipt({ billName, items, allParticipants, onBack }) {
 
       // แปลง Canvas เป็น Base64 รูปภาพ PNG
       const dataUrl = canvas.toDataURL('image/png');
-      
+
       // สร้างปุ่มดาวน์โหลดจำลองแล้วกด
       const link = document.createElement('a');
       link.download = `${billName.replace(/\s+/g, '_')}_receipt.png`;
       link.href = dataUrl;
       link.click();
-      
+
     } catch (err) {
       console.error('Could not export receipt image:', err);
     }
@@ -172,7 +172,7 @@ export default function Receipt({ billName, items, allParticipants, onBack }) {
           {/* Header */}
           <div className="p-lg border-b border-outline-variant bg-surface-container-low flex flex-col items-center text-center">
             <span className="font-mono-code text-mono-code text-primary mb-sm">PayGuDuay_Receipt</span>
-            <h2 className="font-headline-lg text-headline-lg text-on-surface mb-xs truncate w-full px-4">
+            <h2 className="font-headline-lg text-headline-lg text-on-surface mb-xs truncate w-full px-4 pb-2 leading-normal">
               {billName || "Untitled Bill"}
             </h2>
             <p className="font-mono-label text-mono-label text-on-surface-variant">{currentDate} // ID: {txnId}</p>
@@ -248,8 +248,8 @@ export default function Receipt({ billName, items, allParticipants, onBack }) {
             onClick={handleSaveImage}
             disabled={!isImageReady}
             className={`px-md py-sm rounded font-mono-label transition-colors flex items-center gap-xs ${isImageReady
-                ? "bg-primary text-on-primary-fixed hover:bg-primary-fixed-dim"
-                : "bg-surface-variant text-outline cursor-wait opacity-70"
+              ? "bg-primary text-on-primary-fixed hover:bg-primary-fixed-dim"
+              : "bg-surface-variant text-outline cursor-wait opacity-70"
               }`}
           >
             <span className="material-symbols-outlined text-[16px]">
